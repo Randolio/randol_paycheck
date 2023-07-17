@@ -1,5 +1,3 @@
-local QBCore = exports['qb-core']:GetCoreObject()
-
 local function AddToPaycheck(cid, amount)
     if not cid and not amount then return end
     local Player = QBCore.Functions.GetPlayerByCitizenId(cid)

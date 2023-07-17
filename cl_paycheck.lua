@@ -1,4 +1,5 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+local ox_target = GetResourceState('ox_target'):match('start') and exports.ox_target or nil
+local qb_target = GetResourceState('qb-target'):match('start') and exports['qb-target'] or nil
 
 local function InputWithdraw(paycheckAmount)
     local response = lib.inputDialog("Withdrawal", {
@@ -49,7 +50,7 @@ local function PaycheckZone()
     SetPedDefaultComponentVariation(PaycheckMommy)
     lib.requestAnimDict("mp_prison_break")
 	TaskPlayAnim(PaycheckMommy, 'mp_prison_break', 'hack_loop', 8.0, -8.0, -1, 1, 0.0, false, false, false)
-    if Config.Target == 'ox' then
+    if Config.Target == 'ox' and ox_target then
         exports.ox_target:addLocalEntity(PaycheckMommy, {
             {
                 icon = "fa-solid fa-money-check-dollar", 
@@ -77,7 +78,7 @@ local function PaycheckZone()
                 distance = 4.5
             }
         })
-    else
+    elseif Config.Target == 'qb' and qb_target then
         exports['qb-target']:AddTargetEntity(PaycheckMommy, {
             options = {
                 {
