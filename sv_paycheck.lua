@@ -1,5 +1,3 @@
-local QBCore = exports['qb-core']:GetCoreObject()
-
 local function AddToPaycheck(cid, amount)
     if not cid and not amount then return end
     local Player = QBCore.Functions.GetPlayerByCitizenId(cid)
@@ -34,15 +32,17 @@ RegisterNetEvent('randol_paycheck:server:withdraw', function(amount, accountType
     local taxAmount = amount * taxRate
     local finalAmount = amount - taxAmount
 
-    result[1].amount = result[1].amount - finalAmount
+    result[1].amount = result[1].amount - math.floor(finalAmount)
     MySQL.Async.execute('UPDATE paychecks SET amount = ? WHERE citizenid = ?', {result[1].amount, cid})
 
     if accountType == 'cash' then
-        Player.Functions.AddMoney('cash', finalAmount, 'PAYCHECK-WITHDRAW')
-        QBCore.Functions.Notify(src, 'You withdrew $' .. finalAmount .. ' from your paycheck into your wallet. (Tax: $' .. taxAmount .. ')', 'success')
+        Player.Functions.AddMoney('cash', math.floor(finalAmount), 'Paycheck Withdrawal')
+        QBCore.Functions.Notify(src, 'You withdrew $' .. math.floor(finalAmount) .. ' from your paycheck into your wallet. (Tax: $' .. taxAmount .. ')', 'success')
+        MySQL.Async.execute('UPDATE paychecks SET amount = ? WHERE citizenid = ?', {0, cid})
     else
-        Player.Functions.AddMoney('bank', finalAmount, 'PAYCHECK-WITHDRAW')
-        QBCore.Functions.Notify(src, 'You withdrew $' .. finalAmount .. ' from your paycheck into your bank account. (Tax: $' .. taxAmount .. ')', 'success')
+        Player.Functions.AddMoney('bank', math.floor(finalAmount), 'Paycheck Withdrawal')
+        QBCore.Functions.Notify(src, 'You withdrew $' .. math.floor(finalAmount) .. ' from your paycheck into your bank account. (Tax: $' .. taxAmount .. ')', 'success')
+        MySQL.Async.execute('UPDATE paychecks SET amount = ? WHERE citizenid = ?', {0, cid})
     end
     TaskPlayAnim(GetPlayerPed(src), 'friends@laf@ig_5', 'nephew', 8.0, -8.0, -1, 49, 0, false, false, false)
     Wait(2000)

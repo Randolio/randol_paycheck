@@ -6,3 +6,8 @@ Config.Ped = {
 }
 
 Config.TaxRate = 0.10 -- 10% tax rate | If you dont want tax, set this to 0.
+
+Config.Target = 'ox' -- Use 'ox' for Overextended Target
+                     -- Use 'qb' for QBCore Target
+
+QBCore = exports['qb-core']:GetCoreObject()

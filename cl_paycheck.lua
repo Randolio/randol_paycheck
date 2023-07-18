@@ -1,4 +1,5 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+local ox_target = GetResourceState('ox_target'):match('start') and exports.ox_target or nil
+local qb_target = GetResourceState('qb-target'):match('start') and exports['qb-target'] or nil
 
 local function InputWithdraw(paycheckAmount)
     local response = lib.inputDialog("Withdrawal", {
@@ -48,13 +49,13 @@ local function PaycheckZone()
     FreezeEntityPosition(PaycheckMommy, true)
     SetPedDefaultComponentVariation(PaycheckMommy)
     lib.requestAnimDict("mp_prison_break")
-    TaskPlayAnim(PaycheckMommy, "mp_prison_break", "hack_loop", 8.0, -8.0, -1, 1, 0.0, 0, 0, 0)
-    exports['qb-target']:AddTargetEntity(PaycheckMommy, {
-        options = {
+	TaskPlayAnim(PaycheckMommy, 'mp_prison_break', 'hack_loop', 8.0, -8.0, -1, 1, 0.0, false, false, false)
+    if Config.Target == 'ox' and ox_target then
+        exports.ox_target:addLocalEntity(PaycheckMommy, {
             {
                 icon = "fa-solid fa-money-check-dollar", 
-                label = "View Paycheck",
-                action = function()
+                label = "Collect Paycheck",
+                onSelect = function()
                     lib.requestAnimDict('friends@laf@ig_5')
                     TaskPlayAnim(PlayerPedId(), 'friends@laf@ig_5', 'nephew', 8.0, -8.0, -1, 49, 0, false, false, false)
                     QBCore.Functions.Progressbar("cash_check", "Viewing paycheck..", 2500, false, false, {
@@ -66,10 +67,47 @@ local function PaycheckZone()
                         ViewPaycheck()
                     end)
                 end,
+                distance = 4.5,
             },
-        },
-        distance = 4.5,
-    })
+            {
+                icon = 'fas fa-money-bill-wave',
+                label = 'Trade In Receipts',
+                onSelect = function()
+                    TriggerServerEvent('randol_paycheck:CheckReceipts') -- Future Idea
+                end,
+                distance = 4.5
+            }
+        })
+    elseif Config.Target == 'qb' and qb_target then
+        exports['qb-target']:AddTargetEntity(PaycheckMommy, {
+            options = {
+                {
+                    icon = "fa-solid fa-money-check-dollar", 
+                    label = "Collect Paycheck",
+                    action = function()
+                        lib.requestAnimDict('friends@laf@ig_5')
+                        TaskPlayAnim(PlayerPedId(), 'friends@laf@ig_5', 'nephew', 8.0, -8.0, -1, 49, 0, false, false, false)
+                        QBCore.Functions.Progressbar("cash_check", "Viewing paycheck..", 2500, false, false, {
+                            disableMovement = true,
+                            disableCarMovement = true,
+                            disableMouse = false,
+                            disableCombat = true,
+                        }, {}, {}, {}, function()
+                            ViewPaycheck()
+                        end)
+                    end,
+                },
+                {
+                    icon = 'fas fa-money-bill-wave',
+                    label = 'Trade In Receipts',
+                    onSelect = function()
+                        TriggerServerEvent('randol_paycheck:CheckReceipts') -- Future Idea
+                    end,
+                },
+                distance = 4.5,
+            }
+        })
+    end
 end
 
 AddEventHandler('onResourceStop', function(resourceName) 
