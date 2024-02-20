@@ -25,7 +25,7 @@ function PaycheckInterval()
                                 TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('error.company_too_poor'), 'error')
                             else
                                 exports['randol_paycheck']:AddToPaycheck(Player.PlayerData.citizenid, payment)
-                                exports['qb-management']:RemoveMoney(Player.PlayerData.job.name, payment)
+                                exports['qb-banking']:RemoveMoney(Player.PlayerData.job.name, payment, 'Employee Paycheck')
                                 TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', {value = payment}))
                             end
                         else
