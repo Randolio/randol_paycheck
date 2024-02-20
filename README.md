@@ -19,7 +19,7 @@ function PaycheckInterval()
                 if not payment then payment = Player.PlayerData.job.payment end
                 if Player.PlayerData.job and payment > 0 and (QBShared.Jobs[Player.PlayerData.job.name].offDutyPay or Player.PlayerData.job.onduty) then
                     if QBCore.Config.Money.PayCheckSociety then
-                        local account = exports['qb-management']:GetAccount(Player.PlayerData.job.name)
+                        local account = exports['qb-banking']:GetAccountBalance(Player.PlayerData.job.name)
                         if account ~= 0 then -- Checks if player is employed by a society
                             if account < payment then -- Checks if company has enough money to pay society
                                 TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('error.company_too_poor'), 'error')
@@ -43,6 +43,8 @@ function PaycheckInterval()
     SetTimeout(QBCore.Config.Money.PayCheckTimeOut * (60 * 1000), PaycheckInterval)
 end
 ```
+If not using the latest qb-banking update and your funds are still in the in qb-management, replace local account = exports['qb-banking']:GetAccountBalance(Player.PlayerData.job.name) from the snippet above with: local account = exports['qb-management']:GetAccount(Player.PlayerData.job.name)
+
 ## Export
 
 The export below you can use instead of doing: Player.Functions.AddMoney('bank', amount) when rewarding money from legal jobs etc.
