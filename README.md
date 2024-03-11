@@ -82,7 +82,7 @@ end
 
 # ESX Install.
 
-** Go to es_extended/server/paycheck.lua and replace the StartPayCheck() function with mine below.**
+**Go to es_extended/server/paycheck.lua and replace the StartPayCheck() function with mine below.**
 
 ```lua
 function StartPayCheck()
