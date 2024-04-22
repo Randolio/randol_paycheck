@@ -48,7 +48,7 @@ local function removePed()
 end
 
 local function spawnPed()
-    lib.requestModel(Config.model, 2000)
+    lib.requestModel(Config.model)
     PC_PED = CreatePed(0, Config.model, Config.coords, false, false)
     SetEntityAsMissionEntity(PC_PED)
     SetPedFleeAttributes(PC_PED, 0, 0)
@@ -56,17 +56,19 @@ local function spawnPed()
     SetEntityInvincible(PC_PED, true)
     FreezeEntityPosition(PC_PED, true)
     SetPedDefaultComponentVariation(PC_PED)
-    lib.requestAnimDict('mp_prison_break', 2000)
+    SetModelAsNoLongerNeeded(Config.model)
+    lib.requestAnimDict('mp_prison_break')
     TaskPlayAnim(PC_PED, 'mp_prison_break', 'hack_loop', 8.0, -8.0, -1, 1, 0.0, 0, 0, 0)
-
+    RemoveAnimDict('mp_prison_break')
     exports['qb-target']:AddTargetEntity(PC_PED, {
         options = {
             {
                 icon = 'fa-solid fa-money-check-dollar', 
                 label = 'View Paycheck',
                 action = function()
-                    lib.requestAnimDict('friends@laf@ig_5', 2000)
+                    lib.requestAnimDict('friends@laf@ig_5')
                     TaskPlayAnim(cache.ped, 'friends@laf@ig_5', 'nephew', 8.0, -8.0, -1, 49, 0, false, false, false)
+                    RemoveAnimDict('friends@laf@ig_5')
                     if lib.progressCircle({
                         duration = 2500,
                         position = 'bottom',
@@ -104,8 +106,8 @@ function OnPlayerUnload()
 end
 
 AddEventHandler('onResourceStop', function(resourceName) 
-	if GetCurrentResourceName() == resourceName then
+    if GetCurrentResourceName() == resourceName then
         if initZone then initZone:remove() end
         removePed()
-	end 
+    end 
 end)
