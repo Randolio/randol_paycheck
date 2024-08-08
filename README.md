@@ -24,16 +24,16 @@ function PaycheckInterval()
                             if account < payment then -- Checks if company has enough money to pay society
                                 TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('error.company_too_poor'), 'error')
                             else
-                                exports['randol_paycheck']:AddToPaycheck(Player.PlayerData.citizenid, payment)
+                                exports.randol_paycheck:AddToPaycheck(Player.PlayerData.citizenid, payment)
                                 exports['qb-banking']:RemoveMoney(Player.PlayerData.job.name, payment, 'Employee Paycheck')
                                 TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', {value = payment}))
                             end
                         else
-                            exports['randol_paycheck']:AddToPaycheck(Player.PlayerData.citizenid, payment)
+                            exports.randol_paycheck:AddToPaycheck(Player.PlayerData.citizenid, payment)
                             TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', {value = payment}))
                         end
                     else
-                        exports['randol_paycheck']:AddToPaycheck(Player.PlayerData.citizenid, payment)
+                        exports.randol_paycheck:AddToPaycheck(Player.PlayerData.citizenid, payment)
                         TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', {value = payment}))
                     end
                 end
@@ -60,16 +60,16 @@ function PaycheckInterval()
                             if account < payment then -- Checks if company has enough money to pay society
                                 TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('error.company_too_poor'), 'error')
                             else
-                                exports['randol_paycheck']:AddToPaycheck(Player.PlayerData.citizenid, payment)
+                                exports.randol_paycheck:AddToPaycheck(Player.PlayerData.citizenid, payment)
                                 exports['qb-management']:RemoveMoney(Player.PlayerData.job.name, payment)
                                 TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', {value = payment}))
                             end
                         else
-                            exports['randol_paycheck']:AddToPaycheck(Player.PlayerData.citizenid, payment)
+                            exports.randol_paycheck:AddToPaycheck(Player.PlayerData.citizenid, payment)
                             TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', {value = payment}))
                         end
                     else
-                        exports['randol_paycheck']:AddToPaycheck(Player.PlayerData.citizenid, payment)
+                        exports.randol_paycheck:AddToPaycheck(Player.PlayerData.citizenid, payment)
                         TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', {value = payment}))
                     end
                 end
@@ -96,7 +96,7 @@ function StartPayCheck()
         
         if salary > 0 then
           if job == 'unemployed' then -- unemployed
-            exports['randol_paycheck']:AddToPaycheck(xPlayer.identifier, salary)
+            exports.randol_paycheck:AddToPaycheck(xPlayer.identifier, salary)
             TriggerClientEvent('esx:showAdvancedNotification', player, TranslateCap('bank'), TranslateCap('received_paycheck'), TranslateCap('received_help', salary),
               'CHAR_BANK_MAZE', 9)
           elseif Config.EnableSocietyPayouts then -- possibly a society
@@ -104,7 +104,7 @@ function StartPayCheck()
               if society ~= nil then -- verified society
                 TriggerEvent('esx_addonaccount:getSharedAccount', society.account, function(account)
                   if account.money >= salary then -- does the society money to pay its employees?
-                    exports['randol_paycheck']:AddToPaycheck(xPlayer.identifier, salary)
+                    exports.randol_paycheck:AddToPaycheck(xPlayer.identifier, salary)
                     account.removeMoney(salary)
 
                     TriggerClientEvent('esx:showAdvancedNotification', player, TranslateCap('bank'), TranslateCap('received_paycheck'),
@@ -114,13 +114,13 @@ function StartPayCheck()
                   end
                 end)
               else -- not a society
-                exports['randol_paycheck']:AddToPaycheck(xPlayer.identifier, salary)
+                exports.randol_paycheck:AddToPaycheck(xPlayer.identifier, salary)
                 TriggerClientEvent('esx:showAdvancedNotification', player, TranslateCap('bank'), TranslateCap('received_paycheck'), TranslateCap('received_salary', salary),
                   'CHAR_BANK_MAZE', 9)
               end
             end)
           else -- generic job
-            exports['randol_paycheck']:AddToPaycheck(xPlayer.identifier, salary)
+            exports.randol_paycheck:AddToPaycheck(xPlayer.identifier, salary)
             TriggerClientEvent('esx:showAdvancedNotification', player, TranslateCap('bank'), TranslateCap('received_paycheck'), TranslateCap('received_salary', salary),
               'CHAR_BANK_MAZE', 9)
           end
@@ -129,6 +129,15 @@ function StartPayCheck()
     end
   end)
 end
+```
+
+QBOX Install - Navigate to this line: https://github.com/Qbox-project/qbx_core/blob/main/config/server.lua#L131 
+
+```lua
+sendPaycheck = function (player, payment)
+    exports.randol_paycheck:AddToPaycheck(player.PlayerData.citizenid, payment)
+    Notify(player.PlayerData.source, locale('info.received_paycheck', payment))
+end,
 ```
 
 # Export
@@ -140,7 +149,7 @@ Example: QBCore
 ```lua
 local Player = QBCore.Functions.GetPlayer(source)
 local amount = 450
-exports['randol_paycheck']:AddToPaycheck(Player.PlayerData.citizenid, amount)
+exports.randol_paycheck:AddToPaycheck(Player.PlayerData.citizenid, amount)
 ```
 
 Example: ESX
@@ -148,5 +157,5 @@ Example: ESX
 ```lua
 local xPlayer = ESX.GetPlayerFromId(source)
 local amount = 450
-exports['randol_paycheck']:AddToPaycheck(xPlayer.identifier, amount)
+exports.randol_paycheck:AddToPaycheck(xPlayer.identifier, amount)
 ```
