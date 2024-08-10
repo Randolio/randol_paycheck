@@ -4,8 +4,8 @@ local function AddToPaycheck(cid, amount)
     MySQL.update.await([[
         INSERT INTO paychecks (citizenid, amount)
         VALUES (?, ?)
-        ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount)
-    ]], {cid, amount})
+        ON DUPLICATE KEY UPDATE amount = amount + ?
+    ]], {cid, amount, amount})
 
 
     local result = MySQL.single.await('SELECT amount FROM paychecks WHERE citizenid = ?', {cid})
