@@ -1,19 +1,19 @@
 local function AddToPaycheck(cid, amount)
-    if not cid and not amount then return end
-    local Player = GetByIdentifier(cid)
+    if not cid or not amount then return end
+
+    MySQL.update.await([[
+        INSERT INTO paychecks (citizenid, amount)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount)
+    ]], {cid, amount})
+
+
+    local result = MySQL.single.await('SELECT amount FROM paychecks WHERE citizenid = ?', {cid})
+    if not result then return end
+    
     local src = GetSourceFromIdentifier(cid)
-    local result = MySQL.query.await('SELECT * FROM paychecks WHERE citizenid = ?', {cid})
-    if result[1] then
-        result[1].amount += amount
-        MySQL.update.await('UPDATE paychecks SET amount = ? WHERE citizenid = ?', {result[1].amount, cid})
-        if src then
-            DoNotification(src, ('$%s was added to your paycheck. New Total: $%s'):format(amount, result[1].amount), 'success')
-        end
-    else
-        MySQL.insert.await('INSERT INTO paychecks (citizenid, amount) VALUE (?, ?)', {cid, amount})
-        if src then
-            DoNotification(src, ('$%s was added to your paycheck. New Total: $%s'):format(amount, amount), 'success')
-        end
+    if src then
+        DoNotification(src, ('$%s was added to your paycheck. New Total: $%s'):format(amount, result.amount), 'success')
     end
 end
 exports("AddToPaycheck", AddToPaycheck)
@@ -22,11 +22,10 @@ RegisterNetEvent('randol_paycheck:server:withdraw', function(amount, accountType
     local src = source
     local Player = GetPlayer(src)
     local cid = GetPlyIdentifier(Player)
-    local result = MySQL.query.await('SELECT * FROM paychecks WHERE citizenid = ?', {cid})
+    local result = MySQL.rawExecute.await('SELECT amount FROM paychecks WHERE citizenid = ?', {cid})
+    if not result[1].amount then return end
 
-    if not result[1] or tonumber(result[1].amount) < amount then 
-        return DoNotification(src, 'You do not have this much in your paycheck.', 'error') 
-    end
+    if tonumber(result[1].amount) < amount then DoNotification(src, 'You dont have this much in your paycheck.', 'error') return end
 
     result[1].amount -= amount
     MySQL.update.await('UPDATE paychecks SET amount = ? WHERE citizenid = ?', {result[1].amount, cid})
