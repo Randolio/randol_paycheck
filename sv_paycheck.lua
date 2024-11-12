@@ -56,8 +56,8 @@ lib.callback.register('randol_paycheck:server:checkPaycheck', function(source)
     return paycheckAmount
 end)
 
-AddEventHandler('onServerResourceStart', function(resource)
+AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
-        MySQL.query([=[ CREATE TABLE IF NOT EXISTS paychecks ( citizenid varchar(100) NOT NULL, amount varchar(50) DEFAULT NULL, PRIMARY KEY (citizenid)); ]=])
+        MySQL.query.await([=[ CREATE TABLE IF NOT EXISTS paychecks ( citizenid varchar(100) NOT NULL, amount varchar(50) DEFAULT NULL, PRIMARY KEY (citizenid)); ]=])
     end
 end)
