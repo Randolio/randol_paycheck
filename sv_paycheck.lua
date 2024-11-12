@@ -33,7 +33,7 @@ lib.callback.register('randol_paycheck:server:withdraw', function(source, amount
         return false
     end
 
-    result.amount = result.amount - amount
+    result.amount -= amount
     MySQL.update.await('UPDATE paychecks SET amount = ? WHERE citizenid = ?', {result.amount, cid})
 
     if accountType == 'cash' then
