@@ -21,16 +21,20 @@ lib.callback.register('randol_paycheck:server:withdraw', function(source, amount
     local src = source
     local Player = GetPlayer(src)
     local cid = GetPlyIdentifier(Player)
-    local result = MySQL.rawExecute.await('SELECT amount FROM paychecks WHERE citizenid = ?', {cid})
-    if not result[1].amount then return false end
+    local result = MySQL.single.await('SELECT amount FROM paychecks WHERE citizenid = ?', {cid})
+    
+    if not result or not result.amount then 
+        DoNotification(src, 'No available funds in your paycheck.', 'error')
+        return false 
+    end
 
-    if tonumber(result[1].amount) < amount then 
-        DoNotification(src, 'You dont have this much in your paycheck.', 'error')
+    if tonumber(result.amount) < amount then 
+        DoNotification(src, 'You don\'t have this much in your paycheck.', 'error')
         return false
     end
 
-    result[1].amount -= amount
-    MySQL.update.await('UPDATE paychecks SET amount = ? WHERE citizenid = ?', {result[1].amount, cid})
+    result.amount = result.amount - amount
+    MySQL.update.await('UPDATE paychecks SET amount = ? WHERE citizenid = ?', {result.amount, cid})
 
     if accountType == 'cash' then
         AddMoney(Player, 'cash', amount)
@@ -46,10 +50,10 @@ lib.callback.register('randol_paycheck:server:checkPaycheck', function(source)
     local src = source
     local Player = GetPlayer(src)
     local cid = GetPlyIdentifier(Player)
-    local result = MySQL.query.await('SELECT * FROM paychecks WHERE citizenid = ?', {cid})
+    local result = MySQL.single.await('SELECT * FROM paychecks WHERE citizenid = ?', {cid})
     local paycheckAmount = 0
-    if result[1] then
-        paycheckAmount = result[1].amount
+    if result then
+        paycheckAmount = result.amount
     else
         MySQL.insert.await('INSERT INTO paychecks (citizenid, amount) VALUE (?, ?)', {cid, 0})
     end
@@ -58,6 +62,12 @@ end)
 
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
-        MySQL.query.await([=[ CREATE TABLE IF NOT EXISTS paychecks ( citizenid varchar(100) NOT NULL, amount varchar(50) DEFAULT NULL, PRIMARY KEY (citizenid)); ]=])
+        MySQL.query.await([[
+            CREATE TABLE IF NOT EXISTS paychecks (
+                citizenid VARCHAR(100) NOT NULL,
+                amount INT DEFAULT 0,
+                PRIMARY KEY (citizenid)
+            );
+        ]])
     end
 end)
